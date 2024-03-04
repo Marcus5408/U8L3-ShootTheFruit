@@ -1,6 +1,6 @@
 ﻿import pygame
 import random
-import time
+from datetime import datetime
 from apple import Apple
 
 
@@ -29,6 +29,7 @@ a = Apple(40, 40)
 # The loop will carry on until the user exits the game (e.g. clicks the close button).
 score = 0
 run, game_end = True, False
+time_started = datetime.now()
 # -------- Main Program Loop -----------
 while run:
     # --- Main event loop
@@ -48,14 +49,15 @@ while run:
     ##  ----- NO BLIT ZONE END  ----- ##
 
     ## FILL SCREEN, and BLIT here ##
+    screen.fill((r, g, b))
     if not game_end:
-        screen.fill((r, g, b))
+        time_elapsed = datetime.now() - time_started
         message = f"Click the fruit to score! Current score: {score}"
         display_message = my_font.render(message, True, (255, 255, 255))
         screen.blit(display_message, (0, 0))
         screen.blit(a.image, a.rect)
     else:
-        screen.fill((r, g, b))
+        time_elapsed = time_elapsed
         message = f"Current score: {score}"
         display_message = my_font.render(message, True, (255, 255, 255))
         screen.blit(display_message, (0, 0))
@@ -68,7 +70,9 @@ while run:
                 SCREEN_HEIGHT // 2 - display_message.get_height() // 2,
             ),
         )
-
+    message = f"Time elapsed: {time_elapsed.seconds}.{time_elapsed.microseconds // 1000} seconds"
+    display_message = my_font.render(message, True, (255, 255, 255))
+    screen.blit(display_message, (0, SCREEN_HEIGHT - display_message.get_height()))
     pygame.display.update()
     ## END OF WHILE LOOP
 
