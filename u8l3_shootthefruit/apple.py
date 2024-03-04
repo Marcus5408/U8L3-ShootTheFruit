@@ -9,7 +9,7 @@ class Apple:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.image = pygame.image.load("apple.png")
+        self.image = pygame.image.load("u8l3_shootthefruit/apple.png")
         self.image_size = self.image.get_size()
         self.rect = pygame.Rect(self.x, self.y, self.image_size[0], self.image_size[1])
 
