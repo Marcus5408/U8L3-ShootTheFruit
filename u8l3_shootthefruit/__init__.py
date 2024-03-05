@@ -22,9 +22,11 @@ r = 50
 g = 0
 b = 100
 
-
 # Instantiate the apple
 a = Apple(40, 40)
+def add_text_to_screen(text:str, position:tuple) -> None:
+    text = my_font.render(text, True, (255, 255, 255))
+    screen.blit(text, position)
 
 # The loop will carry on until the user exits the game (e.g. clicks the close button).
 score = 0
@@ -52,15 +54,11 @@ while run:
     screen.fill((r, g, b))
     if not game_end:
         time_elapsed = datetime.now() - time_started
-        message = f"Click the fruit to score! Current score: {score}"
-        display_message = my_font.render(message, True, (255, 255, 255))
-        screen.blit(display_message, (0, 0))
+        add_text_to_screen(f"Click the fruit to score! Current score: {score}", (0, 0))
         screen.blit(a.image, a.rect)
     else:
         time_elapsed = time_elapsed
-        message = f"Current score: {score}"
-        display_message = my_font.render(message, True, (255, 255, 255))
-        screen.blit(display_message, (0, 0))
+        add_text_to_screen(f"Current score: {score}", (0, 0))
         message = f"Thanks for playing!"
         display_message = my_font.render(message, True, (255, 255, 255))
         screen.blit(
