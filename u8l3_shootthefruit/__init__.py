@@ -35,22 +35,20 @@ def add_text_to_screen(text: str, position: tuple) -> None:
     screen.blit(text, position)
 
 
-def randomize_positions() -> None:
-    a.move(
+def randomize_position(entity:object) -> None:
+    entity.move(
         random.randint(0, SCREEN_WIDTH - a.image_size[0]),
         random.randint(0, SCREEN_HEIGHT - a.image_size[1]),
-    )
-    e.move(
-        random.randint(0, SCREEN_WIDTH - e.image_size[0]),
-        random.randint(0, SCREEN_HEIGHT - e.image_size[1]),
     )
 
 # The loop will carry on until the user exits the game (e.g. clicks the close button).
 score = 0
-run, game_end = True, False
+run, game_end, instant_fail = True, False, False
 time_started = datetime.now()
-last_enemy_move = datetime.now()
-randomize_positions()
+randomize_position(a)
+randomize_position(e)
+ENEMY_MOVE_EVENT = pygame.USEREVENT
+pygame.time.set_timer(ENEMY_MOVE_EVENT, 1000)
 # -------- Main Program Loop -----------
 while run:
     # --- Main event loop ---
@@ -65,9 +63,7 @@ while run:
                     != 0
                 ):
                     score = score + 1 if score < 11 else score
-                game_end = True if score == 10 else False
             else:
-                score = score - 1 if score > 0 else score
                 if e.rect.collidepoint(event.pos):
                     if (
                         e.image.get_at((event.pos[0] - e.rect.x, event.pos[1] - e.rect.y))[3]
@@ -75,8 +71,14 @@ while run:
                     ):
                         game_end = True
                         instant_fail = True
-            game_end = True if score == 0 else False
-            randomize_positions()
+                else:
+                    score = score - 1 if score > 0 else score
+            if not instant_fail:
+                game_end = True if score == 0 else False
+                game_end = True if score == 10 else False
+            randomize_position(a)
+        if event.type == ENEMY_MOVE_EVENT:
+            randomize_position(e)
     ##  ----- NO BLIT ZONE END  ----- ##
     
     ## FILL SCREEN, and BLIT here ##
@@ -86,13 +88,6 @@ while run:
         add_text_to_screen(f"Click the fruit to score! Current score: {score}", (0, 0))
         screen.blit(a.image, a.rect)
         screen.blit(e.image, e.rect)
-        # check if millisecond value less than 100 in elapsed time
-        if (datetime.now() - last_enemy_move).seconds >= 1:
-            e.move(
-            random.randint(0, SCREEN_WIDTH - e.image_size[0]),
-            random.randint(0, SCREEN_HEIGHT - e.image_size[1]),
-            )
-            last_enemy_move = datetime.now()
     else:
         time_elapsed = time_elapsed
         add_text_to_screen(f"Current score: {score}", (0, 0))
