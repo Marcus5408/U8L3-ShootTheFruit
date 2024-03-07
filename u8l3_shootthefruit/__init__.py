@@ -2,6 +2,9 @@
 import random
 from datetime import datetime
 from apple import Apple
+from enemy import Enemy
+import time
+import asyncio
 
 
 # set up pygame modules
@@ -22,44 +25,78 @@ r = 50
 g = 0
 b = 100
 
-# Instantiate the apple
+# Instantiate the apple and enemy
 a = Apple(40, 40)
-def add_text_to_screen(text:str, position:tuple) -> None:
+e = Enemy(40, 40)
+
+
+def add_text_to_screen(text: str, position: tuple) -> None:
     text = my_font.render(text, True, (255, 255, 255))
     screen.blit(text, position)
+
+
+def randomize_positions() -> None:
+    a.move(
+        random.randint(0, SCREEN_WIDTH - a.image_size[0]),
+        random.randint(0, SCREEN_HEIGHT - a.image_size[1]),
+    )
+    e.move(
+        random.randint(0, SCREEN_WIDTH - e.image_size[0]),
+        random.randint(0, SCREEN_HEIGHT - e.image_size[1]),
+    )
 
 # The loop will carry on until the user exits the game (e.g. clicks the close button).
 score = 0
 run, game_end = True, False
 time_started = datetime.now()
+last_enemy_move = datetime.now()
+randomize_positions()
 # -------- Main Program Loop -----------
 while run:
-    # --- Main event loop
+    # --- Main event loop ---
     ## ----- NO BLIT ZONE START ----- ##
     for event in pygame.event.get():  # User did something
         if event.type == pygame.QUIT:  # If user clicked close
             run = False
         if event.type == pygame.MOUSEBUTTONUP:
             if a.rect.collidepoint(event.pos):
-                if a.image.get_at((event.pos[0] - a.rect.x, event.pos[1] - a.rect.y))[3] != 0:
-                    a.move(
-                        random.randint(0, SCREEN_WIDTH - a.image_size[0]),
-                        random.randint(0, SCREEN_HEIGHT - a.image_size[1]),
-                    )
+                if (
+                    a.image.get_at((event.pos[0] - a.rect.x, event.pos[1] - a.rect.y))[3]
+                    != 0
+                ):
                     score = score + 1 if score < 11 else score
-                    game_end = True if score == 10 else False
+                game_end = True if score == 10 else False
+            else:
+                score = score - 1 if score > 0 else score
+                if e.rect.collidepoint(event.pos):
+                    if (
+                        e.image.get_at((event.pos[0] - e.rect.x, event.pos[1] - e.rect.y))[3]
+                        != 0
+                    ):
+                        game_end = True
+                        instant_fail = True
+            game_end = True if score == 0 else False
+            randomize_positions()
     ##  ----- NO BLIT ZONE END  ----- ##
-
+    
     ## FILL SCREEN, and BLIT here ##
     screen.fill((r, g, b))
     if not game_end:
         time_elapsed = datetime.now() - time_started
         add_text_to_screen(f"Click the fruit to score! Current score: {score}", (0, 0))
         screen.blit(a.image, a.rect)
+        screen.blit(e.image, e.rect)
+        # check if millisecond value less than 100 in elapsed time
+        if (datetime.now() - last_enemy_move).seconds >= 1:
+            e.move(
+            random.randint(0, SCREEN_WIDTH - e.image_size[0]),
+            random.randint(0, SCREEN_HEIGHT - e.image_size[1]),
+            )
+            last_enemy_move = datetime.now()
     else:
         time_elapsed = time_elapsed
         add_text_to_screen(f"Current score: {score}", (0, 0))
-        message = f"Thanks for playing!"
+        message = "Thanks for playing!" if score > 0 else "Game over! You lose!"
         display_message = my_font.render(message, True, (255, 255, 255))
         screen.blit(
             display_message,
