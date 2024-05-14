@@ -9,7 +9,7 @@ from enemy import Enemy
 # set up pygame modules
 pygame.init()
 pygame.font.init()
-my_font = pygame.font.SysFont("Arial", 15)
+my_font = pygame.font.Font("u8l3_shootthefruit/DUBAI-REGULAR.TTF", 15)
 pygame.display.set_caption("Shoot the Fruit!")
 
 
